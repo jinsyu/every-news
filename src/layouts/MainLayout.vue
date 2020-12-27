@@ -11,58 +11,55 @@
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
 
-        <q-toolbar-title>
-          모두의 뉴스
-        </q-toolbar-title>
+        <q-toolbar-title> 모두의 뉴스 </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above content-class="bg-grey-1">
-      <q-list bordered>
-        <q-item
-          clickable
-          v-ripple
-          class="bg-grey-4 text-h6"
-          style="height:100px"
-        >
-          <q-item-section> 설정</q-item-section>
-          <q-item-section avatar>
-            <q-icon color="primary" class="eva eva-settings-2-outline" />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-input
-              class="q-py-md"
-              v-model="searchText"
-              placeholder="검색"
-              @change="onFilterNews"
-              dense
-            >
-              <template v-slot:append>
-                <q-icon class="eva eva-search-outline" color="primary" />
-              </template>
-            </q-input>
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      :width="200"
+      :breakpoint="400"
+    >
+      <q-scroll-area
+        style="
+          height: calc(100% - 150px);
+          margin-top: 150px;
+          border-right: 1px solid #ddd;
+        "
+      >
+        <q-list padding>
+          <q-item clickable v-ripple to="/">
+            <q-item-section avatar>
+              <q-icon class="eva eva-home-outline" />
+            </q-item-section>
 
-            <q-input
-              class="q-py-md"
-              v-model="excludeText"
-              placeholder="검색 제외"
-              @change="onExcludeNews"
-              dense
-            >
-              <template v-slot:append>
-                <q-icon class="eva eva-search-outline" color="primary" />
-              </template>
-            </q-input>
-            <q-badge
-              v-for="excludeText in excludeTextList"
-              :key="excludeText"
-              :label="excludeText"
-            />
-          </q-item-section>
-        </q-item>
-      </q-list>
+            <q-item-section> 홈 </q-item-section>
+          </q-item>
+
+          <q-item active clickable v-ripple to="/about">
+            <q-item-section avatar>
+              <q-icon class="eva eva-info-outline" />
+            </q-item-section>
+
+            <q-item-section> ABOUT </q-item-section>
+          </q-item>
+        </q-list>
+      </q-scroll-area>
+
+      <q-img
+        class="absolute-top"
+        src="https://picsum.photos/100"
+        style="height: 150px"
+      >
+        <div class="absolute-bottom bg-transparent">
+          <q-avatar size="56px" class="q-mb-sm">
+            <img src="https://picsum.photos/50" />
+          </q-avatar>
+          <div class="text-weight-bold">Jinsu Jang</div>
+          <div>@jinsyu</div>
+        </div>
+      </q-img>
     </q-drawer>
 
     <q-page-container>
@@ -72,42 +69,12 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapState } from "vuex";
 export default {
-  name: "MainLayout",
   data() {
     return {
-      searchText: "",
-      excludeText: "",
-      excludeTextList: [],
       leftDrawerOpen: false,
-      menus: [
-        {
-          title: "모든 뉴스",
-          icon: "school",
-          link: "https://quasar.dev"
-        }
-      ]
     };
   },
-  methods: {
-    // ...mapMutations(["SET_SEARCH_TEXT", "SET_EXCLUDE_TEXT_LIST"]),
-    onFilterNews() {
-      this.$store.commit("SET_SEARCH_TEXT", this.searchText);
-    },
-    onExcludeNews() {
-      this.excludeTextList.push(this.excludeText);
-      this.$store.commmit("SET_EXCLUDE_TEXT_LIST", this.excludeTextList);
-    }
-  }
 };
 </script>
-<style lang="scss" scoped>
-input[placeholder] {
-  color: white;
-}
-input[type="text"]:focus:not([readonly]) {
-  box-shadow: none;
-  border-bottom: none;
-}
-</style>
