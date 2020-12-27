@@ -1,61 +1,48 @@
 <template>
   <q-page>
-    <q-skeleton type="QAvatar" />
-    <q-table
-      flat
-      bordered
-      :data="newsList"
-      :columns="columns"
-      row-key="name"
-      hide-header
-      :filter="filter"
-      :pagination.sync="pagination"
-      @row-click="rowClicked"
-    >
-      <template v-slot:body-cell-title="props">
-        <q-td :props="props" style="white-space: normal">
-          <span class="text-body1">{{ props.value }}</span>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-pubDate="props">
-        <q-td :props="props">
-          <span class="text-caption">{{ props.value }}</span>
-        </q-td>
-      </template>
-      <template v-slot:top-right>
-        <q-input
-          borderless
-          dense
-          debounce="300"
-          v-model="filter"
-          placeholder="검색"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-    </q-table>
-
-    <!-- <q-list separator>
-      <q-item
-        clickable
-        v-ripple
-        v-for="news in searchText ? filteredNewsList : unfilteredNewsList"
-        :key="news.link"
+    <pull-to :top-load-method="getNews" :top-config="topConfig">
+      <q-table
+        flat
+        bordered
+        :data="newsList"
+        :columns="columns"
+        row-key="name"
+        hide-header
+        :filter="filter"
+        :pagination.sync="pagination"
+        @row-click="rowClicked"
+        no-data-label="뉴스를 불러오는 중 입니다"
       >
-        <q-item-section>
-          <a :href="news.link" target="_blank">{{ news.title }}</a>
-        </q-item-section>
-        <q-item-section side class="text-caption">{{
-          fromNow(news.pubDate)
-        }}</q-item-section>
-      </q-item>
-    </q-list> -->
+        <template v-slot:body-cell-title="props">
+          <q-td :props="props" style="white-space: normal">
+            <span class="text-body1">{{ props.value }}</span>
+          </q-td>
+        </template>
+        <template v-slot:body-cell-pubDate="props">
+          <q-td :props="props">
+            <span class="text-caption">{{ props.value }}</span>
+          </q-td>
+        </template>
+        <template v-slot:top-right>
+          <q-input
+            borderless
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="검색"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+      </q-table>
+    </pull-to>
   </q-page>
 </template>
 
 <script>
+import PullTo from "vue-pull-to";
 import { mapState } from "vuex";
 import Parser from "rss-parser";
 import moment from "moment";
@@ -63,6 +50,7 @@ import { QSpinnerFacebook } from "quasar";
 moment.locale("ko-kr");
 export default {
   name: "PageIndex",
+  components: { PullTo },
   data() {
     return {
       loading: false,
@@ -89,7 +77,13 @@ export default {
       ],
       filter: "",
       pagination: {
-        rowsPerPage: 50,
+        rowsPerPage: 20,
+      },
+      topConfig: {
+        pullText: "로딩중",
+        loadingText: "로딩중",
+        triggerText: "로딩중",
+        doneText: "완료",
       },
     };
   },
@@ -105,11 +99,11 @@ export default {
     ]),
   },
   methods: {
-    async getNews() {
-      this.$q.loading.show({
-        message: "뉴스 불러오는 중",
-        spinner: QSpinnerFacebook,
-      });
+    async getNews(loaded) {
+      // this.$q.loading.show({
+      //   message: "뉴스 불러오는 중",
+      //   spinner: QSpinnerFacebook,
+      // });
       let parser = new Parser();
       const CORS_PROXY = "https://secret-ocean-49799.herokuapp.com/";
 
@@ -120,9 +114,9 @@ export default {
         )
       ).items;
       this.newsList = this.orderByPubDate(this.newsList);
-      console.log(this.newsList);
-
-      this.$q.loading.hide();
+      // console.log(this.newsList);
+      loaded("done");
+      // this.$q.loading.hide();
     },
     fromNow(pubDate) {
       return moment(pubDate).fromNow();
